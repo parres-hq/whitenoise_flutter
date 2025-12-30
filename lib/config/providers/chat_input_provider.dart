@@ -216,6 +216,30 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
     state = state.copyWith(selectedMedia: updatedMedia);
   }
 
+  Future<void> retryUpload(int index) async {
+    if (index < 0 || index >= state.selectedMedia.length) {
+      _logger.warning('Invalid image index: $index');
+      return;
+    }
+    final mediaItem = state.selectedMedia[index];
+    final filePath = mediaItem.filePath;
+    final accountPubkey = ref.read(activePubkeyProvider);
+    final accountHexPubkey = PubkeyFormatter(pubkey: accountPubkey).toHex() ?? '';
+    if (accountHexPubkey.isEmpty) {
+      _logger.warning('Cannot retry upload: no active account');
+      return;
+    }
+    final updatedMedia =
+        state.selectedMedia.map((item) {
+          if (item == mediaItem) {
+            return MediaFileUpload.uploading(filePath: filePath);
+          }
+          return item;
+        }).toList();
+    state = state.copyWith(selectedMedia: updatedMedia);
+    unawaited(_uploadImage(filePath: filePath, accountHexPubkey: accountHexPubkey));
+  }
+
   void setSingleLineHeight(double height) {
     if (state.singleLineHeight != height) {
       state = state.copyWith(singleLineHeight: height);

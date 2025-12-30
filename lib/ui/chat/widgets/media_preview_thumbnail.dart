@@ -42,7 +42,7 @@ class MediaPreviewThumbnail extends StatelessWidget {
             (filePath, error) => _buildThumbnail(
               context,
               filePath: filePath,
-              overlay: isMarkedForDeletion ? _deletionOverlay(context) : _failedOverlay(context),
+              overlay: _deletionOverlay(context),
             ),
       ),
     );
@@ -111,23 +111,6 @@ class MediaPreviewThumbnail extends StatelessWidget {
               strokeWidth: 2,
               color: context.colors.solidNeutralWhite,
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _failedOverlay(BuildContext context) {
-    return Positioned.fill(
-      child: Container(
-        decoration: BoxDecoration(
-          color: context.colors.solidNeutralBlack.withValues(alpha: 0.5),
-        ),
-        child: Center(
-          child: WnImage(
-            AssetsPaths.icErrorFilled,
-            color: context.colors.destructive,
-            size: 14.w,
           ),
         ),
       ),

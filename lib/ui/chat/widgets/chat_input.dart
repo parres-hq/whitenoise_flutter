@@ -271,6 +271,12 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
                                 onRemoveImage: _removeImage,
                                 onAddMore: _handleImagesSelected,
                                 isReply: chatState.replyingTo[widget.groupId] != null,
+                                onRetryUpload: (index) async {
+                                  final chatInputNotifier = ref.read(
+                                    chatInputProvider(widget.groupId).notifier,
+                                  );
+                                  await chatInputNotifier.retryUpload(index);
+                                },
                               ),
                               Row(
                                 children: [

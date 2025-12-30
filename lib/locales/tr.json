@@ -13,7 +13,8 @@
         "unsavedChanges": "Kaydedilmemiş değişiklikler",
         "continue": "Devam Et",
         "system": "Sistem",
-        "unknownUser": "Bilinmeyen Kullanıcı"
+        "unknownUser": "Bilinmeyen Kullanıcı",
+        "uploadFailedTryAgain": "Yükleme başarısız. Tekrar deneyin."
     },
     "settings": {
         "title": "Ayarlar",
@@ -94,7 +95,9 @@
         "failedToLoadProfile": "Profil yükleme başarısız",
         "publicKeyCopied": "Genel anahtar kopyalandı",
         "scanToConnect": "Bağlanmak için tarayın.",
-        "scanQrCode": "QR Kod Tara"
+        "scanQrCode": "QR Kod Tara",
+        "profilePublicTitle": "Profiliniz herkese açık",
+        "profilePublicDescription": "İsim, fotoğraf ve biyografi herkese açıktır. Paylaşmaktan rahat olduğunuz bilgileri kullanın. Profiliniz varsayılan olarak özel kalır, kişisel hale getirmediğiniz sürece."
     },
     "nostrKeys": {
         "copyPublicKeySuccess": "Genel anahtar panoya kopyalandı",

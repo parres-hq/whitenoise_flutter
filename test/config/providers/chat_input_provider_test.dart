@@ -593,6 +593,109 @@ void main() {
       });
     });
 
+    group('retryUpload', () {
+      group('when media upload failed', () {
+        setUp(() async {
+          const imagePath = '/path/to/failed.jpg';
+          mockImagePicker.imagesToReturn = [imagePath];
+          mockUploadMedia.setUploadFailure(imagePath);
+          await notifier.handleImagesSelected();
+          await waitForUploadsToComplete();
+        });
+
+        test('transitions from failed to uploading', () async {
+          var state = container.read(chatInputProvider(testGroupId));
+          expect(state.selectedMedia[0].isFailed, true);
+
+          mockUploadMedia.reset();
+
+          final retryFuture = notifier.retryUpload(0);
+          state = container.read(chatInputProvider(testGroupId));
+          expect(state.selectedMedia[0].isUploading, true);
+          
+          mockUploadMedia.setUploadResult(
+            '/path/to/failed.jpg',
+            createMockMediaFile(filePath: '/path/to/failed.jpg', id: 'retry-id-1', groupId: testGroupId),
+          );
+          await retryFuture;
+        });
+
+        test('retries upload with same file path', () async {
+          mockUploadMedia.reset();
+          mockUploadMedia.setUploadResult(
+            '/path/to/failed.jpg',
+            createMockMediaFile(filePath: '/path/to/failed.jpg', id: 'retry-id-1', groupId: testGroupId),
+          );
+
+          await notifier.retryUpload(0);
+          await waitForUploadsToComplete();
+
+          expect(mockUploadMedia.uploadCalls.length, 1);
+          final call = mockUploadMedia.uploadCalls[0];
+          expect(call['filePath'], '/path/to/failed.jpg');
+          expect(call['groupId'], testGroupId);
+        });
+
+        test('transitions to uploaded after successful retry', () async {
+          mockUploadMedia.reset();
+          mockUploadMedia.setUploadResult(
+            '/path/to/failed.jpg',
+            createMockMediaFile(filePath: '/path/to/failed.jpg', id: 'retry-id-1', groupId: testGroupId),
+          );
+
+          await notifier.retryUpload(0);
+          await waitForUploadsToComplete();
+
+          final state = container.read(chatInputProvider(testGroupId));
+          expect(state.selectedMedia[0].isUploaded, true);
+        });
+
+        test('transitions to failed again if retry fails', () async {
+          mockUploadMedia.reset();
+          mockUploadMedia.setUploadFailure('/path/to/failed.jpg');
+
+          await notifier.retryUpload(0);
+          await waitForUploadsToComplete();
+
+          final state = container.read(chatInputProvider(testGroupId));
+          expect(state.selectedMedia[0].isFailed, true);
+        });
+
+        test('does nothing for invalid index', () async {
+          final stateBefore = container.read(chatInputProvider(testGroupId));
+          await notifier.retryUpload(10);
+          final stateAfter = container.read(chatInputProvider(testGroupId));
+          expect(stateAfter.selectedMedia, stateBefore.selectedMedia);
+        });
+
+        test('does nothing for negative index', () async {
+          final stateBefore = container.read(chatInputProvider(testGroupId));
+          await notifier.retryUpload(-1);
+          final stateAfter = container.read(chatInputProvider(testGroupId));
+          expect(stateAfter.selectedMedia, stateBefore.selectedMedia);
+        });
+      });
+
+      group('when there is no active account', () {
+        setUp(() async {
+          const imagePath = '/path/to/failed.jpg';
+          mockImagePicker.imagesToReturn = [imagePath];
+          mockUploadMedia.setUploadFailure(imagePath);
+          await notifier.handleImagesSelected();
+          await waitForUploadsToComplete();
+          container.read(activePubkeyProvider.notifier).state = null;
+        });
+
+        test('does not retry upload', () async {
+          final stateBefore = container.read(chatInputProvider(testGroupId));
+          await notifier.retryUpload(0);
+          final stateAfter = container.read(chatInputProvider(testGroupId));
+          expect(stateAfter.selectedMedia[0].isFailed, true);
+          expect(stateAfter.selectedMedia, stateBefore.selectedMedia);
+        });
+      });
+    });
+
     group('clear', () {
       setUp(() async {
         mockImagePicker.imagesToReturn = ['/path/to/image1.jpg', '/path/to/image2.jpg'];

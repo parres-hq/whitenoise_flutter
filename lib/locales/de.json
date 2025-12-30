@@ -13,7 +13,8 @@
         "unsavedChanges": "Nicht gespeicherte Änderungen",
         "continue": "Fortfahren",
         "system": "System",
-        "unknownUser": "Unbekannter Benutzer"
+        "unknownUser": "Unbekannter Benutzer",
+        "uploadFailedTryAgain": "Upload fehlgeschlagen. Erneut versuchen."
     },
     "settings": {
         "title": "Einstellungen",
@@ -94,7 +95,9 @@
         "failedToLoadProfile": "Fehler beim Laden des Profils",
         "publicKeyCopied": "Öffentlicher Schlüssel kopiert",
         "scanToConnect": "Zum Verbinden scannen.",
-        "scanQrCode": "QR-Code scannen"
+        "scanQrCode": "QR-Code scannen",
+        "profilePublicTitle": "Dein Profil ist öffentlich",
+        "profilePublicDescription": "Name, Foto und Bio sind öffentlich. Verwende das, womit du dich wohlfühlst. Dein Profil bleibt standardmäßig privat, es sei denn, du machst es persönlich."
     },
     "nostrKeys": {
         "copyPublicKeySuccess": "Öffentlicher Schlüssel in die Zwischenablage kopiert",

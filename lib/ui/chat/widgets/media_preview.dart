@@ -6,8 +6,10 @@ import 'package:whitenoise/domain/models/media_file_upload.dart';
 import 'package:whitenoise/ui/chat/widgets/media_preview_thumbnail.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class MediaPreview extends StatefulWidget {
   const MediaPreview({
@@ -16,12 +18,14 @@ class MediaPreview extends StatefulWidget {
     required this.onRemoveImage,
     required this.onAddMore,
     this.isReply = false,
+    this.onRetryUpload,
   });
 
   final List<MediaFileUpload> mediaItems;
   final void Function(int index) onRemoveImage;
   final VoidCallback onAddMore;
   final bool isReply;
+  final void Function(int index)? onRetryUpload;
   @override
   State<MediaPreview> createState() => _MediaPreviewState();
 }
@@ -60,6 +64,17 @@ class _MediaPreviewState extends State<MediaPreview> {
   }
 
   void _handleThumbnailTap(int index) {
+    final mediaItem = widget.mediaItems[index];
+    final isFailed = mediaItem.isFailed;
+
+    if (isFailed) {
+      widget.onRemoveImage(index);
+      setState(() {
+        _isDeleteEnabled = false;
+      });
+      return;
+    }
+
     if (_currentMediaIndex == index && _isDeleteEnabled) {
       widget.onRemoveImage(index);
       setState(() {
@@ -161,11 +176,24 @@ class _MediaPreviewState extends State<MediaPreview> {
                               child: Container(
                                 color: context.colors.solidNeutralBlack.withValues(alpha: 0.5),
                                 child: Center(
-                                  child: WnImage(
-                                    AssetsPaths.icErrorFilled,
-                                    color: context.colors.destructive,
-                                    size: 48.w,
-                                  ),
+                                  child:
+                                      widget.onRetryUpload != null
+                                          ? SizedBox(
+                                            width: 237.w,
+                                            height: 44.h,
+                                            child: WnFilledButton(
+                                              label: 'shared.retry'.tr(),
+                                              onPressed: () => widget.onRetryUpload!(index),
+                                              size: WnButtonSize.small,
+                                              visualState: WnButtonVisualState.secondary,
+                                              prefixIcon: WnImage(
+                                                AssetsPaths.icRotate,
+                                                width: 14.w,
+                                                color: context.colors.secondaryForeground,
+                                              ),
+                                            ),
+                                          )
+                                          : const SizedBox.shrink(),
                                 ),
                               ),
                             ),

@@ -13,7 +13,8 @@
         "unsavedChanges": "Cambios sin guardar",
         "continue": "Continuar",
         "system": "Sistema",
-        "unknownUser": "Usuario desconocido"
+        "unknownUser": "Usuario desconocido",
+        "uploadFailedTryAgain": "Error al cargar. Inténtalo de nuevo."
     },
     "settings": {
         "title": "Configuración",
@@ -94,7 +95,9 @@
         "failedToLoadProfile": "Error al cargar el perfil",
         "publicKeyCopied": "Llave pública copiada",
         "scanToConnect": "Escanea para conectar.",
-        "scanQrCode": "Escanear Código QR"
+        "scanQrCode": "Escanear Código QR",
+        "profilePublicTitle": "Tu perfil es público",
+        "profilePublicDescription": "El nombre, la foto y la biografía son públicos. Usa lo que te sientas cómodo compartiendo. Tu perfil permanece privado por defecto a menos que lo hagas personal."
     },
     "nostrKeys": {
         "copyPublicKeySuccess": "Llave pública copiada al portapapeles",

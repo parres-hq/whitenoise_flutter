@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/warning_box.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
@@ -219,53 +220,9 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                         ),
                       ),
                       Gap(12.h),
-                      Container(
-                        padding: EdgeInsets.all(16.w),
-                        decoration: BoxDecoration(
-                          color: context.colors.destructive.withValues(alpha: 0.1),
-                          border: Border.all(
-                            color: context.colors.destructive,
-                            width: 1.w,
-                          ),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(top: 4.w),
-                              child: WnImage(
-                                AssetsPaths.icWarning,
-                                size: 16.w,
-                                color: context.colors.destructive,
-                              ),
-                            ),
-                            Gap(12.w),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'nostrKeys.privateKeyWarningTitle'.tr(),
-                                    style: TextStyle(
-                                      fontSize: 16.sp,
-                                      fontWeight: FontWeight.w600,
-                                      color: context.colors.primary,
-                                    ),
-                                  ),
-                                  Gap(8.h),
-                                  Text(
-                                    'nostrKeys.privateKeyWarningDescription'.tr(),
-                                    style: TextStyle(
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.w500,
-                                      color: context.colors.primary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                      WarningBox(
+                        title: 'nostrKeys.privateKeyWarningTitle'.tr(),
+                        description: 'nostrKeys.privateKeyWarningDescription'.tr(),
                       ),
                       Gap(24.h),
                     ],
