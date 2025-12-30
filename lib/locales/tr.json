@@ -13,7 +13,8 @@
         "unsavedChanges": "Kaydedilmemiş değişiklikler",
         "continue": "Devam Et",
         "system": "Sistem",
-        "unknownUser": "Bilinmeyen Kullanıcı"
+        "unknownUser": "Bilinmeyen Kullanıcı",
+        "uploadFailedTryAgain": "Yükleme başarısız. Tekrar deneyin."
     },
     "settings": {
         "title": "Ayarlar",

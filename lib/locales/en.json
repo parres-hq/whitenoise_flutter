@@ -13,7 +13,8 @@
         "unsavedChanges": "Unsaved changes",
         "continue": "Continue",
         "system": "System",
-        "unknownUser": "Unknown User"
+        "unknownUser": "Unknown User",
+        "uploadFailedTryAgain": "Upload failed. Try again."
     },
     "settings": {
         "title": "Settings",

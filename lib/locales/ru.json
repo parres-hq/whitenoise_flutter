@@ -13,7 +13,8 @@
         "unsavedChanges": "Несохранённые изменения",
         "continue": "Продолжить",
         "system": "Система",
-        "unknownUser": "Неизвестный пользователь"
+        "unknownUser": "Неизвестный пользователь",
+        "uploadFailedTryAgain": "Загрузка не удалась. Попробуйте снова."
     },
     "settings": {
         "title": "Настройки",

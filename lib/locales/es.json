@@ -13,7 +13,8 @@
         "unsavedChanges": "Cambios sin guardar",
         "continue": "Continuar",
         "system": "Sistema",
-        "unknownUser": "Usuario desconocido"
+        "unknownUser": "Usuario desconocido",
+        "uploadFailedTryAgain": "Error al cargar. Inténtalo de nuevo."
     },
     "settings": {
         "title": "Configuración",

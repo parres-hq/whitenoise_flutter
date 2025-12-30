@@ -13,7 +13,8 @@
         "unsavedChanges": "Changements non sauvegardés",
         "continue": "Continuer",
         "system": "Système",
-        "unknownUser": "Utilisateur inconnu"
+        "unknownUser": "Utilisateur inconnu",
+        "uploadFailedTryAgain": "Échec du téléchargement. Réessayez."
     },
     "settings": {
         "title": "Paramètres",

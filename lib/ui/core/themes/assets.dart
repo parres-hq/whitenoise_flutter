@@ -66,6 +66,7 @@ class AssetsPaths {
   static const String icRemoveOutlined = '$_svgsDir/ic_remove_outlined.svg';
   static const String icRemoveUser = '$_svgsDir/ic_remove_user.svg';
   static const String icReply = '$_svgsDir/ic_reply.svg';
+  static const String icRotate = '$_svgsDir/ic_rotate.svg';
   static const String icScan = '$_svgsDir/ic_scan.svg';
   static const String icSearch = '$_svgsDir/ic_search.svg';
   static const String icSettings = '$_svgsDir/ic_settings.svg';

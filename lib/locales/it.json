@@ -13,7 +13,8 @@
         "unsavedChanges": "Modifiche non salvate",
         "continue": "Continua",
         "system": "Sistema",
-        "unknownUser": "Utente sconosciuto"
+        "unknownUser": "Utente sconosciuto",
+        "uploadFailedTryAgain": "Caricamento fallito. Riprova."
     },
     "settings": {
         "title": "Impostazioni",
