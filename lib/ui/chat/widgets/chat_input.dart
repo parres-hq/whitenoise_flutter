@@ -103,7 +103,6 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
     chatInputNotifier.removeImage(index);
   }
 
-
   void _measureSingleLineHeight() {
     final context = _inputKey.currentContext;
     if (!mounted || context == null) return;
@@ -273,7 +272,9 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
                                 onAddMore: _handleImagesSelected,
                                 isReply: chatState.replyingTo[widget.groupId] != null,
                                 onRetryUpload: (index) async {
-                                  final chatInputNotifier = ref.read(chatInputProvider(widget.groupId).notifier);
+                                  final chatInputNotifier = ref.read(
+                                    chatInputProvider(widget.groupId).notifier,
+                                  );
                                   await chatInputNotifier.retryUpload(index);
                                 },
                               ),

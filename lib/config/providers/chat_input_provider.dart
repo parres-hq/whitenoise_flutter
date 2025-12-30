@@ -229,12 +229,13 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
       _logger.warning('Cannot retry upload: no active account');
       return;
     }
-    final updatedMedia = state.selectedMedia.map((item) {
-      if (item == mediaItem) {
-        return MediaFileUpload.uploading(filePath: filePath);
-      }
-      return item;
-    }).toList();
+    final updatedMedia =
+        state.selectedMedia.map((item) {
+          if (item == mediaItem) {
+            return MediaFileUpload.uploading(filePath: filePath);
+          }
+          return item;
+        }).toList();
     state = state.copyWith(selectedMedia: updatedMedia);
     unawaited(_uploadImage(filePath: filePath, accountHexPubkey: accountHexPubkey));
   }

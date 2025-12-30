@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added retry option for failed media uploads [#789](https://github.com/marmot-protocol/whitenoise/issues/789)
 - Added warning message to profile edit screen [#831](https://github.com/marmot-protocol/whitenoise/issues/831)
 
 ### Changed

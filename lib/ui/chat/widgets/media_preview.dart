@@ -66,7 +66,7 @@ class _MediaPreviewState extends State<MediaPreview> {
   void _handleThumbnailTap(int index) {
     final mediaItem = widget.mediaItems[index];
     final isFailed = mediaItem.isFailed;
-    
+
     if (isFailed) {
       widget.onRemoveImage(index);
       setState(() {
@@ -74,7 +74,7 @@ class _MediaPreviewState extends State<MediaPreview> {
       });
       return;
     }
-    
+
     if (_currentMediaIndex == index && _isDeleteEnabled) {
       widget.onRemoveImage(index);
       setState(() {
@@ -176,23 +176,24 @@ class _MediaPreviewState extends State<MediaPreview> {
                               child: Container(
                                 color: context.colors.solidNeutralBlack.withValues(alpha: 0.5),
                                 child: Center(
-                                  child: widget.onRetryUpload != null
-                                      ? SizedBox(
-                                          width: 237.w,
-                                          height: 44.h,
-                                          child: WnFilledButton(
-                                            label: 'shared.retry'.tr(),
-                                            onPressed: () => widget.onRetryUpload!(index),
-                                            size: WnButtonSize.small,
-                                            visualState: WnButtonVisualState.secondary,
-                                            prefixIcon: WnImage(
-                                              AssetsPaths.icRotate,
-                                              width: 14.w,
-                                              color: context.colors.secondaryForeground,
+                                  child:
+                                      widget.onRetryUpload != null
+                                          ? SizedBox(
+                                            width: 237.w,
+                                            height: 44.h,
+                                            child: WnFilledButton(
+                                              label: 'shared.retry'.tr(),
+                                              onPressed: () => widget.onRetryUpload!(index),
+                                              size: WnButtonSize.small,
+                                              visualState: WnButtonVisualState.secondary,
+                                              prefixIcon: WnImage(
+                                                AssetsPaths.icRotate,
+                                                width: 14.w,
+                                                color: context.colors.secondaryForeground,
+                                              ),
                                             ),
-                                          ),
-                                        )
-                                      : const SizedBox.shrink(),
+                                          )
+                                          : const SizedBox.shrink(),
                                 ),
                               ),
                             ),

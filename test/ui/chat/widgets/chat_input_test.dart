@@ -8,6 +8,8 @@ import 'package:whitenoise/src/rust/api/media_files.dart' show MediaFile;
 import 'package:whitenoise/ui/chat/states/chat_input_state.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_input.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_input_send_button.dart';
+import 'package:whitenoise/ui/chat/widgets/media_preview.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 
 import '../../../shared/mocks/mock_active_pubkey_notifier.dart';
@@ -137,6 +139,26 @@ void main() {
 
         final sendButton = tester.widget<ChatInputSendButton>(find.byType(ChatInputSendButton));
         expect(sendButton.isDisabled, true);
+      });
+
+      testWidgets('shows retry button', (WidgetTester tester) async {
+        await tester.pumpWidget(
+          createTestWidget(
+            ChatInput(
+              groupId: testGroupId,
+              onSend: (content, isEditing) {},
+            ),
+            overrides: [
+              activePubkeyProvider.overrideWith(() => MockActivePubkeyNotifier(testAccountPubkey)),
+              chatProvider.overrideWith(() => MockChatNotifier()),
+              chatInputProvider.overrideWith(() => MockChatInputNotifier(stateWithFailedMedia)),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byType(MediaPreview), findsOneWidget);
+        expect(find.byType(WnFilledButton), findsOneWidget);
       });
     });
 
