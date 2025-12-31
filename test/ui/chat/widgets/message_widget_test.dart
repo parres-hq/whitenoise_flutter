@@ -9,6 +9,7 @@ import 'package:whitenoise/ui/chat/widgets/message_media_grid.dart';
 import 'package:whitenoise/ui/chat/widgets/message_reply_box.dart';
 import 'package:whitenoise/ui/chat/widgets/message_widget.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 import '../../../test_helpers.dart';
 
@@ -55,10 +56,18 @@ void main() {
       List<Reaction> reactions = const [],
       MessageStatus status = MessageStatus.sent,
     }) {
+      final MessageType messageType;
+      if (content != null) {
+        messageType = MessageType.text;
+      } else if (mediaAttachments.isNotEmpty) {
+        messageType = MessageType.image;
+      } else {
+        messageType = MessageType.text;
+      }
       return MessageModel(
         id: id,
         content: content,
-        type: content != null ? MessageType.text : MessageType.image,
+        type: messageType,
         createdAt: DateTime.now(),
         sender: sender,
         isMe: isMe,
@@ -858,7 +867,7 @@ void main() {
         expect(find.text(message.timeSent), findsOneWidget);
       });
 
-      testWidgets('does not show status icon for other messages', (WidgetTester tester) async {
+      testWidgets('shows time but not status icon for other messages', (WidgetTester tester) async {
         final message = createTestMessage(
           id: 'msg-1',
           content: 'Other message',
@@ -878,6 +887,7 @@ void main() {
         );
 
         expect(find.text(message.timeSent), findsOneWidget);
+        expect(find.byType(WnImage), findsNothing);
       });
     });
 
