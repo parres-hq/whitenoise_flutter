@@ -45,6 +45,12 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
   Widget build(BuildContext context) {
     final searchState = ref.watch(chatSearchProvider(widget.groupId));
     final searchNotifier = ref.read(chatSearchProvider(widget.groupId).notifier);
+    final int totalMatches = searchState.matches.length;
+    final int currentMatchNumber =
+        searchState.matches.isEmpty ? 0 : searchState.currentMatchIndex + 1;
+    final bool hasMultipleMatches = totalMatches > 1;
+    final bool isPrevEnabled = hasMultipleMatches && currentMatchNumber > 1;
+    final bool isNextEnabled = hasMultipleMatches && currentMatchNumber < totalMatches;
 
     return Container(
       color: context.colors.solidNeutralBlack, // Black background like in the image
@@ -124,22 +130,25 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Previous Match Button
-                  IconButton(
-                    onPressed:
-                        searchNotifier.totalMatches > 1 && searchNotifier.currentMatchNumber > 1
-                            ? () => searchNotifier.goToPreviousMatch()
-                            : null,
-                    icon: WnImage(
-                      AssetsPaths.icChevronUp,
-                      height: 16.w,
-                      width: 16.w,
-                      color: context.colors.solidPrimary,
+                  Visibility.maintain(
+                    visible: hasMultipleMatches,
+                    child: IconButton(
+                      onPressed: isPrevEnabled ? () => searchNotifier.goToPreviousMatch() : null,
+                      icon: Opacity(
+                        opacity: isPrevEnabled ? 1.0 : 0.25,
+                        child: WnImage(
+                          AssetsPaths.icChevronUp,
+                          height: 16.w,
+                          width: 16.w,
+                          color: context.colors.solidPrimary,
+                        ),
+                      ),
+                      padding: EdgeInsets.all(4.w), // Reduce button padding
+                      constraints: BoxConstraints(
+                        minWidth: 32.w,
+                        minHeight: 32.w,
+                      ), // Smaller button size
                     ),
-                    padding: EdgeInsets.all(4.w), // Reduce button padding
-                    constraints: BoxConstraints(
-                      minWidth: 32.w,
-                      minHeight: 32.w,
-                    ), // Smaller button size
                   ),
 
                   // Counter Text - White text on black background
@@ -147,8 +156,8 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                     padding: EdgeInsets.symmetric(horizontal: 8.w),
                     child: Text(
                       'chats.matchesCounter'.tr({
-                        'current': searchNotifier.currentMatchNumber,
-                        'total': searchNotifier.totalMatches,
+                        'current': currentMatchNumber,
+                        'total': totalMatches,
                       }),
                       style: TextStyle(
                         color: context.colors.mutedForeground,
@@ -159,23 +168,25 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                   ),
 
                   // Next Match Button
-                  IconButton(
-                    onPressed:
-                        searchNotifier.totalMatches > 1 &&
-                                searchNotifier.currentMatchNumber < searchNotifier.totalMatches
-                            ? () => searchNotifier.goToNextMatch()
-                            : null,
-                    icon: WnImage(
-                      AssetsPaths.icChevronDown,
-                      height: 16.w,
-                      width: 16.w,
-                      color: context.colors.solidPrimary,
+                  Visibility.maintain(
+                    visible: hasMultipleMatches,
+                    child: IconButton(
+                      onPressed: isNextEnabled ? () => searchNotifier.goToNextMatch() : null,
+                      icon: Opacity(
+                        opacity: isNextEnabled ? 1.0 : 0.25,
+                        child: WnImage(
+                          AssetsPaths.icChevronDown,
+                          height: 16.w,
+                          width: 16.w,
+                          color: context.colors.solidPrimary,
+                        ),
+                      ),
+                      padding: EdgeInsets.all(4.w), // Reduce button padding
+                      constraints: BoxConstraints(
+                        minWidth: 32.w,
+                        minHeight: 32.w,
+                      ), // Smaller button size
                     ),
-                    padding: EdgeInsets.all(4.w), // Reduce button padding
-                    constraints: BoxConstraints(
-                      minWidth: 32.w,
-                      minHeight: 32.w,
-                    ), // Smaller button size
                   ),
                 ],
               ),
