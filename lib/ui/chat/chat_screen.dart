@@ -311,6 +311,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
       messageIndex: messageMatches.first.messageIndex,
       messageContent: messageMatches.first.messageContent,
       textMatches: allTextMatches,
+      currentTextMatch: allTextMatches.first,
     );
   }
 

@@ -276,6 +276,7 @@ mixin _$SearchMatch {
   int get messageIndex => throw _privateConstructorUsedError;
   String get messageContent => throw _privateConstructorUsedError;
   List<TextMatch> get textMatches => throw _privateConstructorUsedError;
+  TextMatch get currentTextMatch => throw _privateConstructorUsedError;
 
   /// Create a copy of SearchMatch
   /// with the given fields replaced by the non-null parameter values.
@@ -295,7 +296,10 @@ abstract class $SearchMatchCopyWith<$Res> {
     int messageIndex,
     String messageContent,
     List<TextMatch> textMatches,
+    TextMatch currentTextMatch,
   });
+
+  $TextMatchCopyWith<$Res> get currentTextMatch;
 }
 
 /// @nodoc
@@ -317,6 +321,7 @@ class _$SearchMatchCopyWithImpl<$Res, $Val extends SearchMatch>
     Object? messageIndex = null,
     Object? messageContent = null,
     Object? textMatches = null,
+    Object? currentTextMatch = null,
   }) {
     return _then(
       _value.copyWith(
@@ -340,9 +345,24 @@ class _$SearchMatchCopyWithImpl<$Res, $Val extends SearchMatch>
                     ? _value.textMatches
                     : textMatches // ignore: cast_nullable_to_non_nullable
                         as List<TextMatch>,
+            currentTextMatch:
+                null == currentTextMatch
+                    ? _value.currentTextMatch
+                    : currentTextMatch // ignore: cast_nullable_to_non_nullable
+                        as TextMatch,
           )
           as $Val,
     );
+  }
+
+  /// Create a copy of SearchMatch
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $TextMatchCopyWith<$Res> get currentTextMatch {
+    return $TextMatchCopyWith<$Res>(_value.currentTextMatch, (value) {
+      return _then(_value.copyWith(currentTextMatch: value) as $Val);
+    });
   }
 }
 
@@ -359,7 +379,11 @@ abstract class _$$SearchMatchImplCopyWith<$Res> implements $SearchMatchCopyWith<
     int messageIndex,
     String messageContent,
     List<TextMatch> textMatches,
+    TextMatch currentTextMatch,
   });
+
+  @override
+  $TextMatchCopyWith<$Res> get currentTextMatch;
 }
 
 /// @nodoc
@@ -380,6 +404,7 @@ class __$$SearchMatchImplCopyWithImpl<$Res>
     Object? messageIndex = null,
     Object? messageContent = null,
     Object? textMatches = null,
+    Object? currentTextMatch = null,
   }) {
     return _then(
       _$SearchMatchImpl(
@@ -403,6 +428,11 @@ class __$$SearchMatchImplCopyWithImpl<$Res>
                 ? _value._textMatches
                 : textMatches // ignore: cast_nullable_to_non_nullable
                     as List<TextMatch>,
+        currentTextMatch:
+            null == currentTextMatch
+                ? _value.currentTextMatch
+                : currentTextMatch // ignore: cast_nullable_to_non_nullable
+                    as TextMatch,
       ),
     );
   }
@@ -416,6 +446,7 @@ class _$SearchMatchImpl implements _SearchMatch {
     required this.messageIndex,
     required this.messageContent,
     required final List<TextMatch> textMatches,
+    required this.currentTextMatch,
   }) : _textMatches = textMatches;
 
   @override
@@ -433,8 +464,11 @@ class _$SearchMatchImpl implements _SearchMatch {
   }
 
   @override
+  final TextMatch currentTextMatch;
+
+  @override
   String toString() {
-    return 'SearchMatch(messageId: $messageId, messageIndex: $messageIndex, messageContent: $messageContent, textMatches: $textMatches)';
+    return 'SearchMatch(messageId: $messageId, messageIndex: $messageIndex, messageContent: $messageContent, textMatches: $textMatches, currentTextMatch: $currentTextMatch)';
   }
 
   @override
@@ -449,7 +483,9 @@ class _$SearchMatchImpl implements _SearchMatch {
             const DeepCollectionEquality().equals(
               other._textMatches,
               _textMatches,
-            ));
+            ) &&
+            (identical(other.currentTextMatch, currentTextMatch) ||
+                other.currentTextMatch == currentTextMatch));
   }
 
   @override
@@ -459,6 +495,7 @@ class _$SearchMatchImpl implements _SearchMatch {
     messageIndex,
     messageContent,
     const DeepCollectionEquality().hash(_textMatches),
+    currentTextMatch,
   );
 
   /// Create a copy of SearchMatch
@@ -476,6 +513,7 @@ abstract class _SearchMatch implements SearchMatch {
     required final int messageIndex,
     required final String messageContent,
     required final List<TextMatch> textMatches,
+    required final TextMatch currentTextMatch,
   }) = _$SearchMatchImpl;
 
   @override
@@ -486,6 +524,8 @@ abstract class _SearchMatch implements SearchMatch {
   String get messageContent;
   @override
   List<TextMatch> get textMatches;
+  @override
+  TextMatch get currentTextMatch;
 
   /// Create a copy of SearchMatch
   /// with the given fields replaced by the non-null parameter values.

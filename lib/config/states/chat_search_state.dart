@@ -20,6 +20,7 @@ class SearchMatch with _$SearchMatch {
     required int messageIndex,
     required String messageContent,
     required List<TextMatch> textMatches,
+    required TextMatch currentTextMatch,
   }) = _SearchMatch;
 }
 
